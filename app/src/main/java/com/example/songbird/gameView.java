@@ -10,8 +10,9 @@ public class gameView extends SurfaceView implements  Runnable{
     private Thread thread; //initialize a thread
     private boolean isPlaying;//a variable to check if game is still playing or not
     private int screenX, screenY; //a variable for the screen on our x and our y axis
-    private float screenRatioX, screenRatioY;//a variable to check the screen ratio, different phone have different screen ratio
-
+    //variable made public and static so that it can be accessable from other java class
+    public static float screenRatioX, screenRatioY;//a variable to check the screen ratio, different phone have different screen ratio
+    private songbird bird;
     private Paint paint;
     private Background background1, background2; //create a background variable
     //we need 2 backgroundinstances to help the background music
@@ -29,6 +30,9 @@ public class gameView extends SurfaceView implements  Runnable{
         background1= new Background(screenX, screenY, getResources());
         //background wont be on the screen, it will be placed when our screen ends on the x axis
         background2= new Background(screenX, screenY, getResources());
+
+        bird = new songbird(screenY, getResources());
+
 
         background2.X=screenX;
 
@@ -70,6 +74,8 @@ public class gameView extends SurfaceView implements  Runnable{
             Canvas canvas =getHolder().lockCanvas();
             canvas.drawBitmap(background1.background, background1.X, background1.Y, paint);
             canvas.drawBitmap(background2.background, background2.X, background2.Y, paint);
+
+            canvas.drawBitmap(bird.getBird(),bird.x, bird.y, paint);
             //this uses the canvast to draw on the screen
             getHolder().unlockCanvasAndPost(canvas);
         }

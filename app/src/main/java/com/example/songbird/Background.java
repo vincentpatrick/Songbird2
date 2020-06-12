@@ -4,6 +4,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.example.songbird.R;
+
 public class Background {
     int X = 0 ,Y = 0;
     Bitmap background;
