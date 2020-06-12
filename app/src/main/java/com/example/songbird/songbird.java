@@ -8,6 +8,7 @@ import static com.example.songbird.gameView.screenRatioX;
 import static com.example.songbird.gameView.screenRatioY;
 
 public class songbird {
+    public boolean is_going_up = false; //check if bird is going up
     int x, y, width, height;
     int wingcounter=0;
     Bitmap bird1, bird2; //by replacing back and forth from bird1 and 2, it shows  an animation where the birds wings are flapping

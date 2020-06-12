@@ -3,6 +3,7 @@ package com.example.songbird;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 //surfaceview is used when you have to change screen content very quickly
@@ -64,6 +65,19 @@ public class gameView extends SurfaceView implements  Runnable{
         if(background2.X +background2.background.getWidth()<0){
             background2.X = screenX;
         }
+        //check if bird is going up, if yes reduce its y axis value by 30 and multiply with screen ratio y
+        if(bird.is_going_up)
+            bird.y-=30*screenRatioY;
+        else
+            bird.y+=30*screenRatioY;
+        //avoid bird from going offscreen
+
+        //if bird reach the top of the screen, then set the birds y axis to 0, so that it stays on screen
+        if(bird.y<0)
+            bird.y =0;
+        //if bird goes offscreen from the bottom, set the bird to stay at the bottom of the screen
+        if(bird.y>=screenY - bird.height)
+            bird.y = screenY-bird.height;
     }
 
     private void draw(){
@@ -113,6 +127,26 @@ public class gameView extends SurfaceView implements  Runnable{
         }catch(InterruptedException e){
             e.printStackTrace();
         }
+    }
+
+    //give player control over songbird
+    //gives player the ability to go up and down
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        //based on the player action, use switch case
+        switch(event.getAction()){
+            //if user takes his thumb off ,bird will go down
+            case MotionEvent.ACTION_DOWN:
+                if(event.getX()<screenX/2){
+                    bird.is_going_up =true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                bird.is_going_up =false;
+                break;
+
+        }
+        return true;
     }
 
 
