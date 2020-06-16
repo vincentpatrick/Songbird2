@@ -6,6 +6,9 @@ import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 //surfaceview is used when you have to change screen content very quickly
 public class gameView extends SurfaceView implements  Runnable{
     private Thread thread; //initialize a thread
@@ -15,8 +18,11 @@ public class gameView extends SurfaceView implements  Runnable{
     public static float screenRatioX, screenRatioY;//a variable to check the screen ratio, different phone have different screen ratio
     private songbird bird;
     private Paint paint;
+
     private Background background1, background2; //create a background variable
     //we need 2 backgroundinstances to help the background music
+    private List<Bullet> bullets;//create a list of bullets
+
     //gameview constructor
     public gameView(Context context, int screenX, int screenY){
         super(context);
@@ -29,16 +35,20 @@ public class gameView extends SurfaceView implements  Runnable{
 
         //set the background
         background1= new Background(screenX, screenY, getResources());
-        //background wont be on the screen, it will be placed when our screen ends on the x axis
+        //second background wont be on the screen, it will be placed when our screen ends on the x axis
         background2= new Background(screenX, screenY, getResources());
 
-        bird = new songbird(screenY, getResources());
-
+        bird = new songbird(this,screenY, getResources());
 
         background2.X=screenX;
 
         //initialize new paint object in the constructor
         paint = new Paint();
+
+        //initiallize bullet list in the constructor
+        bullets = new ArrayList<>();
+
+
     }
 
     @Override
@@ -78,6 +88,19 @@ public class gameView extends SurfaceView implements  Runnable{
         //if bird goes offscreen from the bottom, set the bird to stay at the bottom of the screen
         if(bird.y>=screenY - bird.height)
             bird.y = screenY-bird.height;
+
+        List<Bullet> garbage = new ArrayList<>(); // list for the removed bullets
+        for (Bullet bullet: bullets){
+            //check if bullet goes off screen
+            if(bullet.x> screenX)
+                //add offscreen bullets to the garbage
+                garbage.add(bullet);
+            //move the bullet 50 pixels to the right
+            bullet.x +=50*screenRatioX;
+        }
+        //remove every bullets that are available in the garbage list
+        for (Bullet bullet:garbage)
+            bullets.remove(bullet);
     }
 
     private void draw(){
@@ -90,6 +113,11 @@ public class gameView extends SurfaceView implements  Runnable{
             canvas.drawBitmap(background2.background, background2.X, background2.Y, paint);
 
             canvas.drawBitmap(bird.getBird(),bird.x, bird.y, paint);
+            //another for loop to iterate through list of bullets
+            for(Bullet bullet: bullets)
+                //draw the bullet
+                canvas.drawBitmap(bullet.bullet,bullet.x, bullet.y,paint);
+
             //this uses the canvast to draw on the screen
             getHolder().unlockCanvasAndPost(canvas);
         }
@@ -143,11 +171,21 @@ public class gameView extends SurfaceView implements  Runnable{
                 break;
             case MotionEvent.ACTION_UP:
                 bird.is_going_up =false;
+                if(event.getX()> screenX/2){
+                    //touchevent for shooting bullet comes from right side of the screen
+                    bird.toShoot++;
+                }
                 break;
 
         }
         return true;
     }
 
-
+    public void newBullet() {
+        Bullet bullet = new Bullet(getResources());
+        //set the position where bullet is going to shoot
+        bullet.x= bird.x +bird.width;
+        bullet.y = bird.y+(bird.height/2);
+        bullets.add(bullet);
+    }
 }
