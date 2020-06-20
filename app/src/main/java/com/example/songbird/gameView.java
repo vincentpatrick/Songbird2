@@ -3,26 +3,28 @@ package com.example.songbird;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 //surfaceview is used when you have to change screen content very quickly
 public class gameView extends SurfaceView implements  Runnable{
     private Thread thread; //initialize a thread
-    private boolean isPlaying;//a variable to check if game is still playing or not
+    private boolean isPlaying, isGameOver = false;//a variable to check if game is still playing or not
     private int screenX, screenY; //a variable for the screen on our x and our y axis
     //variable made public and static so that it can be accessable from other java class
     public static float screenRatioX, screenRatioY;//a variable to check the screen ratio, different phone have different screen ratio
     private songbird bird;
     private Paint paint;
-
+    private ghost[] ghosts;//an array of ghost
     private Background background1, background2; //create a background variable
     //we need 2 backgroundinstances to help the background music
     private List<Bullet> bullets;//create a list of bullets
-
+    private Random rand;
     //gameview constructor
     public gameView(Context context, int screenX, int screenY){
         super(context);
@@ -48,7 +50,16 @@ public class gameView extends SurfaceView implements  Runnable{
         //initiallize bullet list in the constructor
         bullets = new ArrayList<>();
 
+        //initialize ghost array
+        ghosts =new ghost[4];//there will be 4 ghost in the screen at a time
 
+        for(int i =0; i<4;i++){
+            ghost ghost = new ghost(getResources());
+            //add ghost to its ghost array
+            ghosts[i]= ghost;
+        }
+        //intialize randomclass
+        rand = new Random();
     }
 
     @Override
@@ -63,6 +74,7 @@ public class gameView extends SurfaceView implements  Runnable{
     }
 
     private void update(){
+
         //change the position of our background on the x axis by 10 pixel
         //y axis will stay the same
         background1.X -=10*screenRatioX;// by multiplaying 10 with screenratioX, this 10 will be made compatible on the number for the screen
@@ -87,7 +99,7 @@ public class gameView extends SurfaceView implements  Runnable{
             bird.y =0;
         //if bird goes offscreen from the bottom, set the bird to stay at the bottom of the screen
         if(bird.y>=screenY - bird.height)
-            bird.y = screenY-bird.height;
+        bird.y = screenY-bird.height;
 
         List<Bullet> garbage = new ArrayList<>(); // list for the removed bullets
         for (Bullet bullet: bullets){
@@ -97,10 +109,51 @@ public class gameView extends SurfaceView implements  Runnable{
                 garbage.add(bullet);
             //move the bullet 50 pixels to the right
             bullet.x +=50*screenRatioX;
+
+            //run through each ghost and check if bullet hits the ghost
+            for (ghost ghost:ghosts){
+                //if bullet collides with ghost
+                if(Rect.intersects(ghost.getCollisionShape(),bullet.getCollisionShape())) {
+                    ghost.x = -500;//ghost goes offscreen
+                    bullet.x = screenX + 500; //bullet also goes offscreen
+                    //the bullet shoots the ghost
+                    ghost.wasShot = true;
+                    //if the bullet misses the ghost, the game will end
+                }
+            }
         }
         //remove every bullets that are available in the garbage list
         for (Bullet bullet:garbage)
             bullets.remove(bullet);
+        for(ghost ghost:ghosts) {
+            //set how fast do you want the ghost to go
+            ghost.x -= ghost.speed;
+
+            if (ghost.x + ghost.width < 0) {//check if the ghost go offscreen
+                /*
+                if(!ghost.wasShot){//ghost is not shot but is still off the screen
+                    isGameOver = true;
+                    return;
+                }*/
+                //set the speed limit of the ghost to 30
+                int bound = (int) (30 * screenRatioX);
+                ghost.speed = rand.nextInt(bound);//gives a random speed for our bird
+                //there's a chance the speed of the ghost to be 0 and we dont want that
+                if (ghost.speed < 10 * screenRatioX) {
+                    //set the speed of the ghost to 10
+                    ghost.speed = (int) (10 * screenRatioX);
+                }
+                ghost.x = screenX;//ghost will come from the right side
+                ghost.y = rand.nextInt(screenY - ghost.height);//ghost will appear from random position
+                ghost.wasShot=false;
+            }
+
+            if(Rect.intersects(ghost.getCollisionShape(), bird.getCollisionShape())){
+                //if bird and ghost collides
+                isGameOver= true;
+                return;
+            }
+        }
     }
 
     private void draw(){
@@ -112,6 +165,16 @@ public class gameView extends SurfaceView implements  Runnable{
             canvas.drawBitmap(background1.background, background1.X, background1.Y, paint);
             canvas.drawBitmap(background2.background, background2.X, background2.Y, paint);
 
+            if(isGameOver){
+                //if game is over,set is playing to false which will break the thread
+                isPlaying = false;
+                //draw a dead songbird bitmap
+                canvas.drawBitmap(bird.getDead(),bird.x,bird.y, paint);
+                getHolder().unlockCanvasAndPost(canvas);
+                return;
+            }
+            for(ghost ghost:ghosts)
+                canvas.drawBitmap(ghost.getGhost(),ghost.x,ghost.y,paint);
             canvas.drawBitmap(bird.getBird(),bird.x, bird.y, paint);
             //another for loop to iterate through list of bullets
             for(Bullet bullet: bullets)

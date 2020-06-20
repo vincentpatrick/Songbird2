@@ -3,6 +3,7 @@ package com.example.songbird;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 
 import static com.example.songbird.gameView.screenRatioX;
 import static com.example.songbird.gameView.screenRatioY;
@@ -14,6 +15,7 @@ public class songbird {
     int x, y, width, height;
     int wingcounter = 0;
     Bitmap bird1, bird2; //by replacing back and forth from bird1 and 2, it shows  an animation where the birds wings are flapping
+    Bitmap dead;
     private gameView gameView;//gameview object
 
 
@@ -35,17 +37,20 @@ public class songbird {
         height /= 4;
 
         //multiply the width and height with its screenratio to make it compatible with different devices
-        width *= (int) screenRatioX;
-        height *= (int) screenRatioY;
+        width =(int)(width*screenRatioX);
+        height =(int)(height*screenRatioY);
+
 
         //resize bitmap
         bird1 = Bitmap.createScaledBitmap(bird1, width, height, false);
         bird2 = Bitmap.createScaledBitmap(bird2, width, height, false);
 
+        //initialize the bitmap for when the bird died
+        dead = BitmapFactory.decodeResource(res,R.drawable.dead);
+        dead = Bitmap.createScaledBitmap(dead, width, height, false);
         //initially be centre vertically
         y = screenY / 2;
         x = (int) (64 * screenRatioX);
-
 
     }
 
@@ -63,4 +68,14 @@ public class songbird {
 
         return bird2;
     }
+    //THIS FUNCTION CREATES  a rectangle around the bird and it returns that a swell
+    Rect getCollisionShape(){
+
+        return new Rect(x, y,x+width,y+height);
+    }
+    Bitmap getDead(){
+        //return the dead bitmap
+        return dead;
+    }
+
 }
