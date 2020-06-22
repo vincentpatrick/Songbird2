@@ -21,7 +21,7 @@ public class ghost {
         ghost1 = BitmapFactory.decodeResource(res, R.drawable.ghost1);
         ghost2 = BitmapFactory.decodeResource(res, R.drawable.ghost2);
 
-        //make the bird smaller to fir the screen
+        //make the ghost smaller to fit the screen
         width = ghost1.getWidth();
         height = ghost2.getHeight();
 

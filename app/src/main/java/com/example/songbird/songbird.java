@@ -60,6 +60,7 @@ public class songbird {
             toShoot--; //reduce number of bullet that are to be shot
             gameView.newBullet();
         }
+        //create an animation by switching between bird1 and bird2
         if (wingcounter == 0) {
             wingcounter++;
             return bird1;
@@ -68,7 +69,7 @@ public class songbird {
 
         return bird2;
     }
-    //THIS FUNCTION CREATES  a rectangle around the bird and it returns that a swell
+    //THIS FUNCTION CREATES  a rectangle around the bird
     Rect getCollisionShape(){
 
         return new Rect(x, y,x+width,y+height);

@@ -24,7 +24,7 @@ public class gameView extends SurfaceView implements  Runnable{
     private boolean isPlaying, isGameOver = false;//a variable to check if game is still playing or not
     private int screenX, screenY; //a variable for the screen on our x and our y axis
     //variable made public and static so that it can be accessable from other java class
-    private int high_score;//a variable that keeps track of high score
+    private int high_score=0;//a variable that keeps track of high score
     public static float screenRatioX, screenRatioY;//a variable to check the screen ratio, different phone have different screen ratio
     private songbird bird;
     private Paint paint;
@@ -82,7 +82,6 @@ public class gameView extends SurfaceView implements  Runnable{
     public void run() {
         //create a while loop and this loop will run only while is still playing
         while(isPlaying) {
-            //give initial position to the
             update();
             draw();
             sleep();
@@ -214,7 +213,7 @@ public class gameView extends SurfaceView implements  Runnable{
         //wait for 17 milliseconds
         //divide 1 second with 17 millisecond so that it returns 60 frames per second
         //therefore this runs in 60fps
-        //in 1 second,update position of image nd update it 60 times
+        //in 1 second,update position of image and update it 60 times
         try {
             Thread.sleep(17);
 
@@ -256,6 +255,7 @@ public class gameView extends SurfaceView implements  Runnable{
                     bird.is_going_up =true;
                 }
                 break;
+                //If user hold left screen the bird will go up.
             case MotionEvent.ACTION_UP:
                 bird.is_going_up =false;
                 if(event.getX()> screenX/2){
@@ -292,6 +292,7 @@ public class gameView extends SurfaceView implements  Runnable{
         //set the position where bullet is going to shoot
         bullet.x= bird.x +bird.width;
         bullet.y = bird.y+(bird.height/2);
+        //add new bullet into the list
         bullets.add(bullet);
     }
 }

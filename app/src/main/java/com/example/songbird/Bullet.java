@@ -18,7 +18,6 @@ public class Bullet {
         width = bullet.getWidth();
         height = bullet.getHeight();
 
-
         width/=4;
         height/=4;
 
@@ -26,14 +25,11 @@ public class Bullet {
         width =(int)(width*screenRatioX);
         height =(int)(height*screenRatioY);
 
-
         //resize the bullet
         bullet = Bitmap.createScaledBitmap(bullet, width, height,false);
-
     }
 
     Rect getCollisionShape(){
-
         return new Rect(x, y,x+width,y+height);
     }
 }
